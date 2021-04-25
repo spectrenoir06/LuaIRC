@@ -10,6 +10,7 @@ local require = require
 local tonumber = tonumber
 local type = type
 local pcall = pcall
+local print = print
 
 module "irc"
 
@@ -17,9 +18,11 @@ local meta = {}
 meta.__index = meta
 _META = meta
 
-require "irc.util"
-require "irc.asyncoperations"
-require "irc.handlers"
+local path = ...
+
+require(path.."/util")
+require(path.."/asyncoperations")
+require(path.."/handlers")
 
 local meta_preconnect = {}
 function meta_preconnect.__index(o, k)
@@ -119,10 +122,10 @@ function meta_preconnect:connect(_host, _port)
 	self.socket = s
 	setmetatable(self, meta)
 
-	self:send("CAP REQ multi-prefix")
+	-- self:send("CAP REQ multi-prefix")
 
-	self:invoke("PreRegister", self)
-	self:send("CAP END")
+	-- self:invoke("PreRegister", self)
+	-- self:send("CAP END")
 
 	if password then
 		self:send("PASS %s", password)

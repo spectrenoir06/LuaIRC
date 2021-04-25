@@ -2,6 +2,8 @@ local pairs = pairs
 local error = error
 local tonumber = tonumber
 local table = table
+local print = print
+local ipairs = ipairs
 
 module "irc"
 
@@ -18,6 +20,45 @@ end
 
 handlers["PRIVMSG"] = function(o, prefix, channel, message)
 	o:invoke("OnChat", parsePrefix(prefix), channel, message)
+end
+
+handlers["PRIVMSG_id"] = function(o, prefix, channel, message)
+	local user = parsePrefix(prefix)
+	for a,b in prefix:gmatch('(.-)=(.-);') do
+		user[a] = b
+	end
+	if user.emotes then
+		user.emotes_t = {}
+		for a,b in user.emotes:gmatch('(%d+):([%d%-%,]+)') do
+			user.emotes_t[a] = {}
+			user.emotes_t[a].pos = {}
+			for c,d in b:gmatch('(%d+)%-(%d+)') do
+				table.insert(user.emotes_t[a].pos, {tonumber(c),tonumber(d)})
+				user.emotes_t[a].str = message:sub(c+1, d+1)
+				-- print(a,b,c,d)
+			end
+		end
+		user.emotes_by_pos = {}
+		for k,v in pairs(user.emotes_t) do
+			-- print(k,v)
+			for l,w in ipairs(v.pos) do
+				-- print(k,v,l,w)
+				table.insert(user.emotes_by_pos, {
+					str = v.str,
+					pos = w,
+					id = k
+				})
+			end
+		end
+		table.sort(user.emotes_by_pos, function(a,b)
+			return a.pos[1] < b.pos[1]
+		end)
+		-- for k,v in ipairs(user.emotes_by_pos) do
+		-- 	print(k, v, v.pos[1], v.str)
+		-- end
+	end
+	user.nick = user["display-name"]
+	o:invoke("OnChat_id", user, channel, message)
 end
 
 handlers["NOTICE"] = function(o, prefix, channel, message)

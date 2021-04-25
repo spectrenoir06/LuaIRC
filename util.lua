@@ -7,6 +7,8 @@ local assert = assert
 local tostring = tostring
 local type = type
 local random = math.random
+local print = print
+local pairs = pairs
 
 module "irc"
 
@@ -14,8 +16,8 @@ module "irc"
 function parse(line)
 	local prefix
 	local lineStart = 1
-	if line:sub(1,1) == ":" then
-		local space = line:find(" ")
+	if line:sub(1,1) == ":" or line:sub(1,1) == "@" then
+		local space = line:find(" %w")
 		prefix = line:sub(2, space-1)
 		lineStart = space
 	end
@@ -46,6 +48,14 @@ function parse(line)
 	if trailing then 
 		params[#params + 1] = trailing 
 	end
+
+	if line:sub(1,1) == "@" then
+		cmd = cmd .."_id"
+	end
+
+	-- print("prefix = ", prefix)
+	-- print("cmd = ", cmd)
+	-- print("params = ", params)
 
 	return prefix, cmd, params
 end
