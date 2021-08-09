@@ -29,7 +29,7 @@ handlers["PRIVMSG_id"] = function(o, prefix, channel, message)
 	end
 	if user.emotes then
 		user.emotes_t = {}
-		for a,b in user.emotes:gmatch('(%d+):([%d%-%,]+)') do
+		for a,b in user.emotes:gmatch('([0-9a-z_]+):([%d%-%,]+)') do
 			user.emotes_t[a] = {}
 			user.emotes_t[a].pos = {}
 			for c,d in b:gmatch('(%d+)%-(%d+)') do
